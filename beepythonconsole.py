@@ -36,6 +36,9 @@ Operation Commands:
     
                     LOCALFILE_PATH -> filepath to file
 
+    * "-exit" Closes console
+
+
 """
 
 __author__ = "BVC Electronic Systems"
@@ -72,7 +75,7 @@ if __name__ == "__main__":
         var = input(">:")
         #print(var)
         
-        if("exit" in var.lower()):
+        if("-exit" in var.lower()):
             console.close()
             console = None
             done = True

@@ -1,8 +1,25 @@
-# To change this license header, choose License Headers in Project Properties.
-# To change this template file, choose Tools | Templates
-# and open the template in the editor.
-#from chardet.test import result
-#import cmd
+#!/usr/bin/env python3
+"""
+* Copyright (c) 2015 BEEVC - Electronic Systems This file is part of BEESOFT
+* software: you can redistribute it and/or modify it under the terms of the GNU
+* General Public License as published by the Free Software Foundation, either
+* version 3 of the License, or (at your option) any later version. BEESOFT is
+* distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU General Public License for more details. You
+* should have received a copy of the GNU General Public License along with
+* BEESOFT. If not, see <http://www.gnu.org/licenses/>.
+"""
+
+r"""
+Console.py
+
+This Module links command lines received through ther terminal console with the corresponding commands in the BeeConnect package
+
+"""
+
+__author__ = "BVC Electronic Systems"
+__license__ = ""
 from gcoder import GCode
 
 __author__ = "mgomes"
@@ -332,14 +349,6 @@ class Console():
         est = estimator.estimate_duration()
         nLines = est['lines']
         min = est ['seconds']//60
-        
-        #estimatorPath = "/home/mgomes/BeePanel/estimator/gcoder.py"
-        #-estimate /home/mgomes/git/BTFPythonConsole/src/pin
-        #estCmd = ["python","/home/mgomes/BeePanel/estimator/gcoder.py",localFN]
-        #p = subprocess.Popen(estCmd, stdout=subprocess.PIPE)
-        #output = p.stdout.read()
-        #outStr = str(output)
-        #print(output)
         
         return
         
