@@ -1,8 +1,45 @@
-'''
-Created on Feb 5, 2015
+#!/usr/bin/env python3
+"""
+* Copyright (c) 2015 BEEVC - Electronic Systems This file is part of BEESOFT
+* software: you can redistribute it and/or modify it under the terms of the GNU
+* General Public License as published by the Free Software Foundation, either
+* version 3 of the License, or (at your option) any later version. BEESOFT is
+* distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU General Public License for more details. You
+* should have received a copy of the GNU General Public License along with
+* BEESOFT. If not, see <http://www.gnu.org/licenses/>.
+"""
 
-@author: mgomes
-'''
+r"""
+BeePythonConsole - Terminal console for the BeeTheFirst 3D Printer
+
+Every new line inserted in the console is processed in 2 different categories:
+
+Printer commands:
+    Single M & G code lines.
+
+Operation Commands:
+    Commands to do specific operations, like load filament and transfer files.
+    Operation commands always start with an "-"
+    
+    The following operation commands are implemented:
+    
+    * "-load" Load filament operation
+    * "-unload" Unload filament operation
+    * "-gcode LOCALFILE_PATH R2C2_FILENAME" Transfer gcode file to Printer.
+                    
+                    LOCALFILE_PATH -> filepath to file
+                    R2C2_FILENAME -> Name to be used when writing in printer memory (Optional)
+    
+    * "-flash LOCALFILE_PATH" Flash firmware.
+    
+                    LOCALFILE_PATH -> filepath to file
+
+"""
+
+__author__ = "BVC Electronic Systems"
+__license__ = ""
 
 import Console
 import os

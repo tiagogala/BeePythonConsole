@@ -17,6 +17,7 @@ import usb.core
 import subprocess
 import sys
 import gcoder
+import re
 
 class Console():
     
@@ -271,17 +272,34 @@ class Console():
             print("   :","File does not exist")
             return
         
-        estimator = gcoder.GCode(open(localFN, "rU"));
-        est = estimator.estimate_duration()
-        nLines = est['lines']
-        min = est ['seconds']//60
+        #REMOVE SPECIAL CHARS
+        sdFN = re.sub('[\W_]+', '', sdFN)
         
-        eCmd = 'M31 A' + str(min) + ' L' + str(nLines) + '\n'
-        header = open('header.txt','w')
-        header.write(eCmd)
-        header.close()
+        #CHECK FILENAME
+        if(len(sdFN) > 8):
+            sdFN = sdFN[:7]
         
-        os.system('cat header.txt ' + localFN + ' >> gFile.gcode')
+        firstChar = sdFN[0]
+        
+        if(firstChar.isdigit()):
+            nameChars = list(sdFN)
+            nameChars[0] = 'a'
+            sdFN = "".join(nameChars)
+        
+        #ADD ESTIMATOR HEADER
+        gc = gcoder.GCode(open(localFN,'rU'))
+        
+        est = gc.estimate_duration()
+        eCmd = 'M300\n'                 #Beep
+        eCmd += 'M31 A' + str(est['seconds']//60) + ' L' + str(est['lines']) + '\n' #Estimator command
+        eCmd += 'M32 A0\n'      #Clear time counter
+        
+        newFile = open('gFile.gcode','w')
+        newFile.write(eCmd)
+        newFile.close()
+        
+        os.system("cat '" + localFN + "' >> " + "gFile.gcode")
+        
         
         self.transferGFile('gFile.gcode', sdFN)
         
