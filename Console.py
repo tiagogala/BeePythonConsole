@@ -10,6 +10,7 @@
 * should have received a copy of the GNU General Public License along with
 * BEESOFT. If not, see <http://www.gnu.org/licenses/>.
 """
+from _ast import Try
 
 r"""
 Console.py
@@ -426,7 +427,11 @@ class Console():
         
         split = cmd.split(' ')
         
-        fileName = split[1]
+        fileName = '/home/mgomes/git/beethefirst-firmware/FLASH_RUN/project.bin'
+        try:
+            fileName = split[1]
+        except:
+            pass
         
         self.beeCmd.FlashFirmware(fileName)
         

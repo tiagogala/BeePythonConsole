@@ -98,7 +98,8 @@ class Con():
         self.dev = usb.core.find(idVendor=0xffff, idProduct=0x014e,backend=libusb1.get_backend())
         #self.dev = usb.core.find(idVendor=0xffff, idProduct=0x014e,backend=libusb0.get_backend())
         #self.dev = usb.core.find(idVendor=0xffff, idProduct=0x014e,backend=openusb.get_backend())
-        
+        #self.dev = usb.core.find(idVendor=0xffff, idProduct=0x014e)
+                                 
         # was it found? no, try the other device
         if self.dev is None:
                 self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x001)

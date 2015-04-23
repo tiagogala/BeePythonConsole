@@ -84,7 +84,7 @@ if __name__ == "__main__":
             print("   :",console.mode)
             
         elif("-gcode" in var.lower() and console.mode == "firmware"):
-            print("   :","Starting gcode trasnfer:")
+            print("   :","Starting gcode transfer:")
             if("-gcode -c" in var.lower() and console.mode == "firmware"):
                 print("   :","Editing gCode :")
                 console.transferGCodeWithColor(var)
@@ -96,7 +96,7 @@ if __name__ == "__main__":
             console.load()
             
         elif("-unload" in var.lower()):
-            print("   :","Unoading filament")
+            print("   :","Unloading filament")
             console.unload()
         elif("-estimate" in var.lower()):
             print("   :","Estimating time")

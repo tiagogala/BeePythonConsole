@@ -10,6 +10,7 @@
 * should have received a copy of the GNU General Public License along with
 * BEESOFT. If not, see <http://www.gnu.org/licenses/>.
 """
+from threading import Thread
 
 r"""
 BeeCommand Class
@@ -1013,18 +1014,30 @@ class Cmd():
         
         print("   :","Flashing new firmware File: ",fileName)
         
-        self.oldFw = self.GetFirmwareVersion()
+        #self.oldFw = self.GetFirmwareVersion()
         
-        self.beeCon.sendCmd('M114 A0.0.0\n', 'ok')
+        resp = self.beeCon.sendCmd('M114 A0.0.0\n', 'ok')
+        print('Reset FW resp: ',resp)
+        
+        
+        fSize = os.path.getsize(fileName)
         
         cTime = time.time()
         
-        message = "M650 A{0}\n".format(os.path.getsize(fileName))
+        message = "M650 A" + str(fSize) + "\n"
+        
+        #resp = self.beeCon.sendCmd(message, 'ok')
+        #print('Start Transfer resp: ', resp)
+        
         self.beeCon.write(message)
+        
+        time.sleep(1)
         
         resp = ''
         while('ok' not in resp):
             resp += self.beeCon.read()
+        
+        print('Start Transfer resp: ', resp)
         
         resp = ''
         with open(fileName, 'rb') as f:
@@ -1034,6 +1047,7 @@ class Cmd():
                 if not buf: break
                 
                 self.beeCon.write(buf)
+                time.sleep(0.0000001)
                 ret = []
                 while (len(ret) != len(buf)):
                     try:
