@@ -102,7 +102,7 @@ class Con():
                                  
         # was it found? no, try the other device
         if self.dev is None:
-                self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x001)
+                self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x001,backend=libusb1.get_backend())
         elif self.dev is None:
                 raise ValueError('Device not found')
 
