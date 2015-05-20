@@ -87,7 +87,7 @@ class Con():
     *************************************************************************"""
     def findBEE(self):
         r"""
-        findBEE method
+        findBE-E method
         
         searches for connected printers and tries to connect to the first one.
         """
@@ -99,10 +99,27 @@ class Con():
         #self.dev = usb.core.find(idVendor=0xffff, idProduct=0x014e,backend=libusb0.get_backend())
         #self.dev = usb.core.find(idVendor=0xffff, idProduct=0x014e,backend=openusb.get_backend())
         #self.dev = usb.core.find(idVendor=0xffff, idProduct=0x014e)
-                                 
+        
+        if(self.dev is not None):
+            print("BTF Old Connected")
+        
         # was it found? no, try the other device
         if self.dev is None:
-                self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x001)
+            self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0001,backend=libusb1.get_backend())
+            if(self.dev is not None):
+                print("BTF New Connected")
+        if self.dev is None:
+            self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0002,backend=libusb1.get_backend())
+            if(self.dev is not None):
+                print("BTF Plus Connected")
+        if self.dev is None:
+            self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0003,backend=libusb1.get_backend())
+            if(self.dev is not None):
+                print("BTF ME Connected")
+        if self.dev is None:
+            self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0004,backend=libusb1.get_backend())
+            if(self.dev is not None):
+                print("BTF School Connected")
         elif self.dev is None:
                 raise ValueError('Device not found')
 
@@ -115,6 +132,8 @@ class Con():
         try:
             self.dev.set_configuration()
             self.dev.reset()
+            time.sleep(0.5)
+            #self.dev.set_configuration()
             self.cfg = self.dev.get_active_configuration()
             self.intf = self.cfg[(0,0)]
             print("reconnect")
