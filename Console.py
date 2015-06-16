@@ -36,6 +36,7 @@ import subprocess
 import sys
 import gcoder
 import re
+import platform
 
 class Console():
     
@@ -305,21 +306,24 @@ class Console():
             sdFN = "".join(nameChars)
         
         #ADD ESTIMATOR HEADER
-        gc = gcoder.GCode(open(localFN,'rU'))
-        
-        est = gc.estimate_duration()
-        eCmd = 'M300\n'                 #Beep
-        eCmd += 'M31 A' + str(est['seconds']//60) + ' L' + str(est['lines']) + '\n' #Estimator command
-        eCmd += 'M32 A0\n'      #Clear time counter
-        
-        newFile = open('gFile.gcode','w')
-        newFile.write(eCmd)
-        newFile.close()
-        
-        os.system("cat '" + localFN + "' >> " + "gFile.gcode")
-        
-        
-        self.transferGFile('gFile.gcode', sdFN)
+        if(platform.system() != 'Windows'):
+            gc = gcoder.GCode(open(localFN,'rU'))
+            
+            est = gc.estimate_duration()
+            eCmd = 'M300\n'                 #Beep
+            eCmd += 'M31 A' + str(est['seconds']//60) + ' L' + str(est['lines']) + '\n' #Estimator command
+            eCmd += 'M32 A0\n'      #Clear time counter
+            
+            newFile = open('gFile.gcode','w')
+            newFile.write(eCmd)
+            newFile.close()
+            
+            os.system("cat '" + localFN + "' >> " + "gFile.gcode")
+            
+            
+            self.transferGFile('gFile.gcode', sdFN)
+        else:
+            self.transferGFile(localFN, sdFN)
         
         
         return

@@ -95,29 +95,33 @@ class Con():
         self.connected = False
         
         # find our device
-        self.dev = usb.core.find(idVendor=0xffff, idProduct=0x014e,backend=libusb1.get_backend())
+        #self.dev = usb.core.find(idVendor=0xffff, idProduct=0x014e,backend=libusb1.get_backend())
         #self.dev = usb.core.find(idVendor=0xffff, idProduct=0x014e,backend=libusb0.get_backend())
         #self.dev = usb.core.find(idVendor=0xffff, idProduct=0x014e,backend=openusb.get_backend())
-        #self.dev = usb.core.find(idVendor=0xffff, idProduct=0x014e)
+        self.dev = usb.core.find(idVendor=0xffff, idProduct=0x014e)
         
         if(self.dev is not None):
             print("BTF Old Connected")
         
         # was it found? no, try the other device
         if self.dev is None:
-            self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0001,backend=libusb1.get_backend())
+            #self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0001,backend=libusb1.get_backend())
+            self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0001)
             if(self.dev is not None):
                 print("BTF New Connected")
         if self.dev is None:
-            self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0002,backend=libusb1.get_backend())
+            #self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0002,backend=libusb1.get_backend())
+            self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0002)
             if(self.dev is not None):
                 print("BTF Plus Connected")
         if self.dev is None:
-            self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0003,backend=libusb1.get_backend())
+            #self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0003,backend=libusb1.get_backend())
+            self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0003)
             if(self.dev is not None):
                 print("BTF ME Connected")
         if self.dev is None:
-            self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0004,backend=libusb1.get_backend())
+            #self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0004,backend=libusb1.get_backend())
+            self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0004)
             if(self.dev is not None):
                 print("BTF School Connected")
         elif self.dev is None:
