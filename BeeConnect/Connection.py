@@ -37,9 +37,9 @@ __license__ = ""
 import usb
 import usb.core
 import usb.util
-import usb.backend.libusb1 as libusb1
-import usb.backend.libusb0 as libusb0
-import usb.backend.openusb as openusb
+#import usb.backend.libusb1 as libusb1
+#import usb.backend.libusb0 as libusb0
+#import usb.backend.openusb as openusb
 import sys
 import os
 import time
