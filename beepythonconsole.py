@@ -51,6 +51,9 @@ import time
 
 done = False
 
+newestFirmwareVersion = 'MSFT-BEETHEFIRST-10.1.0'
+fwFile = 'MSFT-BEETHEFIRST-Firmware-10.1.0.BIN'
+
 def restart_program():
     python = sys.executable
     os.execl(python, python, * sys.argv)
@@ -104,6 +107,35 @@ if __name__ == "__main__":
         elif("-flash" in var.lower()):
             print("   :","Flashing Firmware")
             console.FlashFirmware(var)
+        elif("-verify" in var.lower()):
+            print("   :Newest Printer Firmware Available:",newestFirmwareVersion)
+            currentVersionResp = console.sendCmd('M115',printReply=False)       #Ask Printer Firmware Version
+            if(newestFirmwareVersion in currentVersionResp):
+                print("   :Printer is already running the latest firmware")
+            else:
+                printerModeResp = console.sendCmd('M116',printReply=False)      #Ask Printer Bootloader Version
+                if('Bad M-code' in printerModeResp):                            #Firmware Does not reply to M116 command, Bad M-Code Error
+                    print("   :Printer in Firmware, restarting your Printer to Bootloader")
+                    console.sendCmd('M609',printReply=False)                    #Send Restart Command to Firmware
+                    time.sleep(2)                                               #Small delay to make sure the board resets and establishes connection
+                    #After Reset we must close existing connections and reconnect to the new device
+                    while(True):
+                        try:
+                            console.beeCon.close()      #close old connection
+                            console = None
+                            console = Console.Console() #search for printer and connect to the first
+                            if(console.connected == True):  #if connection is established proceed
+                                break                       
+                        except:
+                            pass
+                    
+                else:
+                    print("   :Printer is in Bootloader")
+                    
+                console.beeCmd.FlashFirmware(fwFile)                        #Flash New Firmware
+                newFwCmd = 'M114 A' + newestFirmwareVersion                 #preprare command string to set Firmware String
+                console.sendCmd(newFwCmd, printReply=False)                 #Record New FW String in Bootloader
+            #console.FlashFirmware(var)
         else:
             if(("m630" in var.lower() and console.mode == "bootloader") or ("m609" in var.lower() and console.mode == "firmware")):
                 print("Changing to firmware/bootloader")

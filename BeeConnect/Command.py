@@ -67,6 +67,7 @@ class Cmd():
     beeCon = None
     
     MESSAGE_SIZE = 512
+    #MESSAGE_SIZE = 1024
     BLOCK_SIZE = 64
     
     transmisstionErrors = 0
@@ -890,6 +891,7 @@ class Cmd():
             return False
         
         time.sleep(0.001)
+        #time.sleep(0.0005)
         
         tries = 10
         resp = ""
@@ -1013,56 +1015,50 @@ class Cmd():
             return
         
         print("   :","Flashing new firmware File: ",fileName)
+        self.beeCon.sendCmd('M114 A0.0.0\n', 'ok')                  #Clear FW Version
         
-        #self.oldFw = self.GetFirmwareVersion()
+        fSize = os.path.getsize(fileName)                           #Get Firmware size in bytes
+        cTime = time.time()                                         #Get current time
         
-        resp = self.beeCon.sendCmd('M114 A0.0.0\n', 'ok')
-        print('Reset FW resp: ',resp)
+        message = "M650 A" + str(fSize) + "\n"                      #Prepare Start Transfer Command string
+        self.beeCon.write(message)                                  #Send Start Transfer Command
         
-        
-        fSize = os.path.getsize(fileName)
-        
-        cTime = time.time()
-        
-        message = "M650 A" + str(fSize) + "\n"
-        
-        #resp = self.beeCon.sendCmd(message, 'ok')
-        #print('Start Transfer resp: ', resp)
-        
-        self.beeCon.write(message)
-        
-        time.sleep(1)
-        
+        #Before continue wait for the reply from the Start Command transfer
         resp = ''
-        while('ok' not in resp):
+        while('ok' not in resp):                                    #Once the printer is ready it replies 'ok'
             resp += self.beeCon.read()
         
-        print('Start Transfer resp: ', resp)
         
         resp = ''
-        with open(fileName, 'rb') as f:
-            while True:
-                buf = f.read(64)
+        with open(fileName, 'rb') as f:                             #Open file to start transfer
+            
+            while True:                                             #while loop
+                buf = f.read(64)                                    #Read 64 bytes from file
                 
-                if not buf: break
+                if not buf: break                                   #if nothing left to read, transfer finished
                 
-                self.beeCon.write(buf)
-                time.sleep(0.0000001)
+                self.beeCon.write(buf)                              #Send 64 bytes to the printer
+                
+                time.sleep(0.0000001)                               #Small delay helps remove sporadic errors
+                
+                #The printer will forward the received data
+                #we then collect the received data and compare it to identify transfer errors
                 ret = []
-                while (len(ret) != len(buf)):
+                while (len(ret) != len(buf)):                       #wait for the 64 bytes to be received
                     try:
                         ret += self.beeCon.ep_in.read(len(buf), 1000)
                     except usb.core.USBError as e:
                         if ("timed out" in str(e.args)):
                             pass
             
-                bRet = bytes(ret)
-                if(bRet not in buf):
-                    print('TODO: MANAGE FIRMWARE FLASHING FAILURE')
+                bRet = bytes(ret)                                   #convert the received data to bytes
+                if(bRet not in buf):                                #Compare the data received with data sent
+                                                                    #If data received/sent are different cancel transfer and reset the printer manually 
+                    print('Firmware Flash error, please reset the printer')
                     return
 
-                sys.stdout.write('.')
-                sys.stdout.flush()
+                sys.stdout.write('.')                               #print dot to console
+                sys.stdout.flush()                                  #used only to provide a simple indication as the process in running
 
         eTime = time.time()
         

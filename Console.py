@@ -10,7 +10,6 @@
 * should have received a copy of the GNU General Public License along with
 * BEESOFT. If not, see <http://www.gnu.org/licenses/>.
 """
-from _ast import Try
 
 r"""
 Console.py
@@ -21,7 +20,7 @@ This Module links command lines received through ther terminal console with the 
 
 __author__ = "BVC Electronic Systems"
 __license__ = ""
-from gcoder import GCode
+#from gcoder import GCode
 
 __author__ = "mgomes"
 __date__ = "$Jan 8, 2015 11:20:21 AM$"
@@ -170,7 +169,7 @@ class Console():
     
     
     *************************************************************************"""
-    def sendCmd(self, cmd):
+    def sendCmd(self, cmd , printReply=True):
         
         cmdStr = cmd + "\n"
         
@@ -179,6 +178,9 @@ class Console():
             wait = "3"
         
         resp = self.beeCon.sendCmd(cmdStr, wait)
+        
+        if(printReply == False):
+            return resp
         
         splits = resp.rstrip().split("\n")
         
@@ -273,6 +275,7 @@ class Console():
         
         localFN = None
         sdFN = None
+        estimate = False
             
         fields = cmd.split(" ")
         
@@ -284,7 +287,8 @@ class Console():
             sdFN = localFN
         elif(len(fields) == 3):
             localFN = fields[1]
-            sdFN = fields[2]
+            if('-e' in cmd):
+                estimate = True
         
         #check if file exists
         if(os.path.isfile(localFN) == False):
@@ -306,7 +310,7 @@ class Console():
             sdFN = "".join(nameChars)
         
         #ADD ESTIMATOR HEADER
-        if(platform.system() != 'Windows'):
+        if(platform.system() != 'Windows' and estimate):
             gc = gcoder.GCode(open(localFN,'rU'))
             
             est = gc.estimate_duration()
@@ -336,7 +340,6 @@ class Console():
     def estimateTime(self, cmd):
         
         localFN = None
-        sdFN = None
             
         fields = cmd.split(" ")
         
@@ -345,15 +348,16 @@ class Console():
             return
         elif(len(fields) == 2):
             localFN = fields[1]
-            sdFN = localFN
         elif(len(fields) == 3):
             localFN = fields[1]
-            sdFN = fields[2]
             
         estimator = gcoder.GCode(open(localFN, "rU"));
         est = estimator.estimate_duration()
         nLines = est['lines']
         min = est ['seconds']//60
+        
+        print("   :",'Number of GCode Lines: ',nLines,)
+        print("   :",'Estimated Time: ',min,'min')
         
         return
         
@@ -431,11 +435,15 @@ class Console():
         
         split = cmd.split(' ')
         
-        fileName = '/home/mgomes/git/beethefirst-firmware/FLASH_RUN/project.bin'
+        fileName = ''
         try:
             fileName = split[1]
         except:
             pass
+        
+        if("'" in fileName):
+            fields = fileName.split("'")
+            fileName = fields[1]
         
         self.beeCmd.FlashFirmware(fileName)
         
