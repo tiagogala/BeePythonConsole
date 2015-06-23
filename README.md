@@ -24,3 +24,8 @@ To use this tool clone the current repository to your computer and run it bu cal
 - Install python3 (run "sudo apt-get install python3" in a terminak window)
 - Install pip3 (run "sudo apt-get install python3-pip" in a terminak window)
 - Install pyusb (run "sudo pip3 install pyusb" in a terminal window)
+
+## Run
+
+### Mac OSX
+$python3 beepythonconsole.py
