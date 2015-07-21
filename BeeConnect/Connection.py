@@ -34,17 +34,15 @@ isConnected()    returns the current state of the printer connection
 __author__ = "BVC Electronic Systems"
 __license__ = ""
 
+import sys
+import time
+
 import usb
 import usb.core
 import usb.util
-#import usb.backend.libusb1 as libusb1
-#import usb.backend.libusb0 as libusb0
-#import usb.backend.openusb as openusb
-import sys
-import os
-import time
 
-class Con():
+
+class Con:
     
     dev = None
     endpoint = None
@@ -122,14 +120,14 @@ class Con():
         if self.dev is None:
             #self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0004,backend=libusb1.get_backend())
             self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0004)
-            if(self.dev is not None):
+            if self.dev is not None:
                 print("BEEINSCHOOL Printer Connected")
         elif self.dev is None:
                 raise ValueError('Device not found')
 
         if self.dev is None:
-                print("Can't Find Printer")
-                return
+            print "Can't Find Printer"
+            return
             
         # set the active configuration. With no arguments, the first
         # configuration will be the active one
@@ -140,7 +138,7 @@ class Con():
             #self.dev.set_configuration()
             self.cfg = self.dev.get_active_configuration()
             self.intf = self.cfg[(0,0)]
-            print("reconnect")
+            print "reconnect"
         except usb.core.USBError as e:
             sys.exit("Could not set configuration: %s" % str(e))
         
@@ -189,7 +187,7 @@ class Con():
         """
         bytesWriten = 0
         
-        if(message == "dummy"):
+        if message == "dummy":
             pass
         else:
             try:
@@ -203,7 +201,7 @@ class Con():
                             read Method
 
     *************************************************************************"""
-    def read(self,timeout=500, readLen=512):
+    def read(self, timeout=500, readLen=512):
         r"""
         read method
         
@@ -223,7 +221,7 @@ class Con():
             ret = self.ep_in.read(readLen, timeout)
             sret = ''.join([chr(x) for x in ret])
         except usb.core.USBError as e:
-            if ("timed out" in str(e.args)):
+            if "timed out" in str(e.args):
                 pass
             
         return sret
@@ -232,7 +230,7 @@ class Con():
                             dispatch Method
 
     *************************************************************************"""
-    def dispatch(self,message):
+    def dispatch(self, message):
         r"""
         dispatch method
         
@@ -247,7 +245,7 @@ class Con():
         
         timeout = self.READ_TIMEOUT
         
-        if(message == "dummy"):
+        if message == "dummy":
             pass
         else:
             time.sleep(0.009)
@@ -259,7 +257,7 @@ class Con():
             ret = self.ep_in.read(self.DEFAULT_READ_LENGTH, timeout)
             sret = ''.join([chr(x) for x in ret])
         except usb.core.USBError as e:
-            if ("timed out" in str(e.args)):
+            if "timed out" in str(e.args):
                 pass
             
         return sret
@@ -268,7 +266,7 @@ class Con():
                             sendCmd Method 
 
     *************************************************************************"""
-    def sendCmd(self,cmd,wait=None,timeout=None):
+    def sendCmd(self, cmd, wait=None, timeout=None):
         r"""
         sendCmd method
         
@@ -288,10 +286,10 @@ class Con():
         if wait is None:
             resp = self.dispatch(cmd)
         else:
-            if(wait.isdigit()):
-                resp = self.waitForStatus(cmd,wait,timeout)
+            if wait.isdigit():
+                resp = self.waitForStatus(cmd, wait, timeout)
             else:
-                resp = self.waitFor(cmd,wait,timeout)
+                resp = self.waitFor(cmd, wait, timeout)
         
         return resp
 
@@ -299,7 +297,7 @@ class Con():
                             waitFor Method 
 
     *************************************************************************"""
-    def waitFor(self,cmd,s,timeout=None):
+    def waitFor(self, cmd, s, timeout=None):
         r"""
         waitFor method
         
@@ -317,7 +315,7 @@ class Con():
         self.write(cmd)
         
         resp = ""
-        while(s not in resp):
+        while s not in resp:
             try:
                 resp += self.read()
             except Exception:
@@ -329,7 +327,7 @@ class Con():
                             waitForStatus Method 
 
     *************************************************************************"""
-    def waitForStatus(self,cmd,s,timeout=None):
+    def waitForStatus(self, cmd, s, timeout=None):
         r"""
         waitForStatus method
         
@@ -349,13 +347,13 @@ class Con():
         str2find = "S:" + str(s)
         
         resp = ""
-        while("ok" not in resp):
+        while "ok" not in resp:
             try:
                 resp += self.read()
             except Exception:
                 pass
         
-        while(str2find not in resp):
+        while str2find not in resp:
             try:
                 self.write("M625\n")
                 time.sleep(0.5)

@@ -14,30 +14,25 @@
 r"""
 Console.py
 
-This Module links command lines received through ther terminal console with the corresponding commands in the BeeConnect package
+This Module links command lines received through the terminal console with the corresponding commands in the BeeConnect package
 
 """
 
-__author__ = "BVC Electronic Systems"
-__license__ = ""
-#from gcoder import GCode
-
-__author__ = "mgomes"
+__author__ = "mgomes - BVC Electronic Systems"
 __date__ = "$Jan 8, 2015 11:20:21 AM$"
 
-import BeeConnect.Command
-import BeeConnect.Connection
 import time
 import os
 import math
-import usb.core
-import subprocess
-import sys
-import gcoder
 import re
 import platform
 
-class Console():
+import BeeConnect.Command
+import BeeConnect.Connection
+import gcoder
+
+
+class Console:
     
     beeCon = None
     beeCmd = None
@@ -69,15 +64,15 @@ class Console():
                 print("Wait for connection")
                 
                 self.beeCon = BeeConnect.Connection.Con()
-                if(self.beeCon.isConnected() == True):
+                if self.beeCon.isConnected() == True:
                     self.beeCmd = BeeConnect.Command.Cmd(self.beeCon)
                     resp = self.beeCon.sendCmd("M625\n")
-                    if('Bad M-code 625' in resp):   #printer in bootloader mode
+                    if 'Bad M-code 625' in resp:   #printer in bootloader mode
                         print("Printer running in Bootloader Mode")
                         self.mode = "bootloader"
                         self.connected = True
-                    elif('ok Q' in resp):
-                        print("Printer running in firmware mode")
+                    elif 'ok Q' in resp:
+                        print "Printer running in firmware mode"
                         self.mode = "firmware"
                         self.connected = True
                     else:
@@ -87,8 +82,8 @@ class Console():
                         
                         resp = self.beeCmd.cleanBuffer()
                         
-                        if(resp == 0):
-                            print("error connecting to printer... restarting application")
+                        if resp == 0:
+                            print "error connecting to printer... restarting application"
                             self.beeCon.close()
                             self.beeCon = None
                             self.exit = True
@@ -105,7 +100,7 @@ class Console():
                         """
                         self.beeCon.close()
                         self.beeCon = None
-                        #return None
+                        # return None
                     
                 nextPullTime = time.time() + 0.05
                 
@@ -134,20 +129,20 @@ class Console():
             if t > nextPullTime:
                 
                 self.beeCon = BeeConnect.Connection.Con()
-                if(self.beeCon.isConnected() == True):
+                if self.beeCon.isConnected() == True:
                     self.beeCmd = BeeConnect.Command.Cmd(self.beeCon)
                     
                     resp = self.beeCmd.startPrinter()
                 
-                    if('Firmware' in resp):
+                    if 'Firmware' in resp:
                         self.connected = self.beeCon.connected
                         self.mode = "firmware"
                         return
-                    elif('Bootloader' in resp):
+                    elif 'Bootloader' in resp:
                         self.beeCon = None
                     
                 nextPullTime = time.time() + 0.1
-                print("Wait for connection")
+                print "Wait for connection"
         
         return
 
@@ -160,7 +155,7 @@ class Console():
         
         self.beeCon.close()
         
-        print("Closing")
+        print "Closing"
         
         return
 
@@ -174,12 +169,12 @@ class Console():
         cmdStr = cmd + "\n"
         
         wait = None
-        if("g" in cmd.lower()):
+        if "g" in cmd.lower():
             wait = "3"
         
         resp = self.beeCon.sendCmd(cmdStr, wait)
         
-        if(printReply == False):
+        if printReply == False:
             return resp
         
         splits = resp.rstrip().split("\n")
@@ -223,24 +218,24 @@ class Console():
             
         fields = cmd.split(" ")
         
-        if(len(fields) < 4):
+        if len(fields) < 4:
             print("   :","Insuficient fields")
             return
-        elif(len(fields) == 4):
+        elif len(fields) == 4:
             localFN = fields[2]
             sdFN = localFN
             color = fields[3]
-        elif(len(fields) == 5):
+        elif len(fields) == 5:
             localFN = fields[2]
             sdFN = fields[3]
             color = fields[4]
         
-        if(os.path.isfile(localFN) == False):
+        if os.path.isfile(localFN) == False:
             print("   :","File does not exist")
             return
         
         colorCode = "W1"
-        if("black" in color.lower()):
+        if "black" in color.lower():
             colorCode = "W1"
         
         header = "M300\nG28\nM206 X500\nM107\nM104 S220\nG92 E\nM642 "
@@ -279,38 +274,38 @@ class Console():
             
         fields = cmd.split(" ")
         
-        if(len(fields) < 2):
+        if len(fields) < 2:
             print("   :","Insuficient fields")
             return
-        elif(len(fields) == 2):
+        elif len(fields) == 2:
             localFN = fields[1]
             sdFN = localFN
-        elif(len(fields) == 3):
+        elif len(fields) == 3:
             localFN = fields[1]
-            if('-e' in cmd):
+            if '-e' in cmd:
                 estimate = True
         
-        #check if file exists
-        if(os.path.isfile(localFN) == False):
-            print("   :","File does not exist")
+        # check if file exists
+        if os.path.isfile(localFN) == False:
+            print "   :","File does not exist"
             return
         
-        #REMOVE SPECIAL CHARS
+        # REMOVE SPECIAL CHARS
         sdFN = re.sub('[\W_]+', '', sdFN)
         
-        #CHECK FILENAME
-        if(len(sdFN) > 8):
+        # CHECK FILENAME
+        if len(sdFN) > 8:
             sdFN = sdFN[:7]
         
         firstChar = sdFN[0]
         
-        if(firstChar.isdigit()):
+        if firstChar.isdigit():
             nameChars = list(sdFN)
             nameChars[0] = 'a'
             sdFN = "".join(nameChars)
         
-        #ADD ESTIMATOR HEADER
-        if(platform.system() != 'Windows' and estimate):
+        # ADD ESTIMATOR HEADER
+        if platform.system() != 'Windows' and estimate:
             gc = gcoder.GCode(open(localFN,'rU'))
             
             est = gc.estimate_duration()
@@ -343,21 +338,21 @@ class Console():
             
         fields = cmd.split(" ")
         
-        if(len(fields) < 2):
-            print("   :","Insuficient fields")
+        if len(fields) < 2:
+            print "   :","Insuficient fields"
             return
-        elif(len(fields) == 2):
+        elif len(fields) == 2:
             localFN = fields[1]
-        elif(len(fields) == 3):
+        elif len(fields) == 3:
             localFN = fields[1]
             
-        estimator = gcoder.GCode(open(localFN, "rU"));
+        estimator = gcoder.GCode(open(localFN, "rU"))
         est = estimator.estimate_duration()
         nLines = est['lines']
         min = est ['seconds']//60
         
-        print("   :",'Number of GCode Lines: ',nLines,)
-        print("   :",'Estimated Time: ',min,'min')
+        print("   :", 'Number of GCode Lines: ', nLines)
+        print("   :", 'Estimated Time: ', min, 'min')
         
         return
         
@@ -368,54 +363,54 @@ class Console():
     *************************************************************************"""
     def transferGFile(self, localFN, sdFN):
         
-        #Load File
-        print("   :","Loading File")
+        # Load File
+        print "   :","Loading File"
         f = open(localFN, 'rb')
         fSize = os.path.getsize(localFN)
-        print("   :","File Size: ", fSize, "bytes")
+        print "   :","File Size: ", fSize, "bytes"
         
         blockBytes = self.beeCmd.MESSAGE_SIZE * self.beeCmd.BLOCK_SIZE
         nBlocks = math.ceil(fSize/blockBytes)
-        print("   :","Number of Blocks: ", nBlocks)
+        print "   :","Number of Blocks: ", nBlocks
         
-        #TODO RUN ESTIMATOR
+        # TODO RUN ESTIMATOR
         
-        #CREATE SD FILE
+        # CREATE SD FILE
         resp = self.beeCmd.CraeteFile(sdFN)
-        if(not resp):
+        if not resp:
             return
         
-        #Start transfer
+        # Start transfer
         blocksTransfered = 0
         totalBytes = 0
         
         startTime = time.time()
         
-        #Load local file
+        # Load local file
         with open(localFN, 'rb') as f:
             
             self.beeCmd.transmisstionErrors = 0
 
-            while(blocksTransfered < nBlocks):
+            while blocksTransfered < nBlocks:
                 
                 startPos = totalBytes
                 endPos = totalBytes + blockBytes
                 
                 bytes2write = endPos - startPos
                 
-                if(blocksTransfered == nBlocks -1):
+                if blocksTransfered == nBlocks -1:
                     endPos = fSize
                     
                 blockTransfered = False
-                while(blockTransfered == False):
+                while blockTransfered == False:
                     blockTransfered = self.beeCmd.sendBlock(startPos,f)
-                    if(blockTransfered is None):
-                        print("Transfer aborted")
+                    if blockTransfered is None:
+                        print "Transfer aborted"
                         return False
                 
                 totalBytes += bytes2write 
                 blocksTransfered += 1
-                print("   :","Transfered ", str(blocksTransfered), "/", str(nBlocks), " blocks ", totalBytes, "/", fSize, " bytes")
+                print "   :","Transfered ", str(blocksTransfered), "/", str(nBlocks), " blocks ", totalBytes, "/", fSize, " bytes"
                 
         print("   :","Transfer completed",". Errors Resolved: ", self.beeCmd.transmisstionErrors)
         
@@ -441,11 +436,10 @@ class Console():
         except:
             pass
         
-        if("'" in fileName):
+        if "'" in fileName:
             fields = fileName.split("'")
             fileName = fields[1]
         
         self.beeCmd.FlashFirmware(fileName)
-        
-        
+
         return

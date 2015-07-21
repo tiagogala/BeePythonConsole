@@ -10,7 +10,6 @@
 * should have received a copy of the GNU General Public License along with
 * BEESOFT. If not, see <http://www.gnu.org/licenses/>.
 """
-from threading import Thread
 
 r"""
 BeeCommand Class
@@ -52,14 +51,16 @@ getPrintStatus()                Gets print status
 __author__ = "BVC Electronic Systems"
 __license__ = ""
 
-import usb.core
-import usb.util
 import sys
 import os
 import time
 import math
 
+import usb.core
+import usb.util
+
 import BeeConnect.Connection
+
 
 class Cmd():
     
@@ -122,21 +123,19 @@ class Cmd():
         
         resp = self.beeCon.sendCmd("M625\n")
         
-        if('Bad M-code 625' in resp):   #printer in bootloader mode
-            print("Printer running in Bootloader Mode")
+        if 'Bad M-code 625' in resp:   #printer in bootloader mode
+            print "Printer running in Bootloader Mode"
             #print("Changing to firmware")
             #self.beeCon.write("M630\n")
             #self.beeCon.close()
             #time.sleep(1)
             
             return "Bootloader"
-        elif('ok Q' in resp):
+        elif 'ok Q' in resp:
             print("Printer running in firmware mode")
             return "Firmware"
         else:
             return ""
-        
-        return
     
     """*************************************************************************
                                 getStatus Method 
@@ -155,30 +154,29 @@ class Cmd():
         
         while(not done):
             
-            while('s:' not in resp.lower()):
+            while 's:' not in resp.lower():
                 resp += self.beeCon.sendCmd("M625\n")
                 time.sleep(1)
             
-            if('s:3' in resp.lower()):
+            if 's:3' in resp.lower():
                 status = 'Ready'
                 done = True
-            elif('s:4' in resp.lower()):
+            elif 's:4' in resp.lower():
                 status = 'Moving'
                 done = True
-            elif('s:5' in resp.lower()):
+            elif 's:5' in resp.lower():
                 status = 'SD_Print'
                 done = True
-            elif('s:6' in resp.lower()):
+            elif 's:6' in resp.lower():
                 status = 'Transfer'
                 done = True
-            elif('s:7' in resp.lower()):
+            elif 's:7' in resp.lower():
                 status = 'Pause'
                 done = True
-            elif('s:9' in resp.lower()):
+            elif 's:9' in resp.lower():
                 status = 'SDown_Wait'
                 done = True
-            
-        
+
         return status
 
     """*************************************************************************
@@ -245,7 +243,7 @@ class Cmd():
                                 move Method 
     
     *************************************************************************"""
-    def move(self,x=None,y=None,z=None,e=None,f=None, wait = None):
+    def move(self, x=None, y=None, z=None, e=None, f=None, wait=None):
         r"""
         move method
         
@@ -289,8 +287,7 @@ class Cmd():
             newZ = newZ + z
         if e is not None:
             newE = newE + e
-            
-            
+
         if f is not None:
             newF = float(f)
             commandStr = "G1 X" + str(newX) + " Y" + str(newY) + " Z" + str(newZ) + " E" + str(newE) + "F" + str(newF) + "\n"
@@ -298,10 +295,10 @@ class Cmd():
             commandStr = "G1 X" + str(newX) + " Y" + str(newY) + " Z" + str(newZ) + " E" + str(newE) + "\n"
         
         
-        if(wait is not None):
+        if wait is not None:
             self.beeCon.sendCmd(commandStr)
         else:
-            self.beeCon.sendCmd(commandStr,"3")
+            self.beeCon.sendCmd(commandStr, "3")
         
         return
     
@@ -316,19 +313,19 @@ class Cmd():
         moves the printer to the first calibration point
         """
         
-        #go to home
+        # go to home
         self.beeCon.sendCmd("G28\n","3")
         
-        #set feedrate
+        # set feedrate
         self.beeCon.sendCmd("G1 F15000\n")
         
-        #set acceleration
+        # set acceleration
         self.beeCon.sendCmd("M206 X400\n")
         
-        #go to first point
+        # go to first point
         self.beeCon.sendCmd("G1 X0 Y67 Z2\n")
         
-        #set acceleration
+        # set acceleration
         self.beeCon.sendCmd("M206 X1000\n")
         
         return
@@ -344,19 +341,19 @@ class Cmd():
         Saves calibration offset and moves to second calibration point
         """
         
-        #record calibration position
+        # record calibration position
         self.beeCon.sendCmd("M603\n")
         self.beeCon.sendCmd("M601\n")
         
-        #set feedrate
+        # set feedrate
         self.beeCon.sendCmd("G1 F5000\n")
         #set acceleration
         self.beeCon.sendCmd("M206 X400\n")
         
         
-        #go to SECOND point
+        # go to SECOND point
         self.move(0,0,10,0)
-        #self.beeCon.sendCmd("G1 X-31 Y-65\n","3")
+        # self.beeCon.sendCmd("G1 X-31 Y-65\n","3")
         self.beeCon.sendCmd("G1 X-31 Y-65\n")
         self.move(0,0,-10,0)
         
@@ -373,14 +370,14 @@ class Cmd():
         moves the printer to the third calibration point
         """
         
-        #set feedrate
+        # set feedrate
         self.beeCon.sendCmd("G1 F5000\n")
-        #set acceleration
+        # set acceleration
         self.beeCon.sendCmd("M206 X400\n")
         
         self.move(0,0,10,0)
-        #go to SECOND point
-        #self.beeCon.sendCmd("G1 X35 Y-65\n","3")
+        # go to SECOND point
+        # self.beeCon.sendCmd("G1 X35 Y-65\n","3")
         self.beeCon.sendCmd("G1 X35 Y-65\n")
         
         self.move(0,0,-10,0)
@@ -431,7 +428,7 @@ class Cmd():
         
         commandStr = "M104 S" + str(t) + "\n"
         
-        #set Temperature
+        # set Temperature
         resp = self.beeCon.sendCmd(commandStr)
         #print(resp)
         
@@ -498,16 +495,16 @@ class Cmd():
         moves the printer to the heating coordinates
         """
         
-        #set feedrate
+        # set feedrate
         self.beeCon.sendCmd("G1 F15000\n")
         
-        #set acceleration
+        # set acceleration
         self.beeCon.sendCmd("M206 X400\n")
         
-        #go to first point
+        # go to first point
         self.beeCon.sendCmd("G1 X30 Y0 Z10\n")
         
-        #set acceleration
+        # set acceleration
         self.beeCon.sendCmd("M206 X1000\n","3")
         
         return
@@ -523,16 +520,16 @@ class Cmd():
         moves the printer to the rest position
         """
         
-        #set feedrate
+        # set feedrate
         self.beeCon.sendCmd("G1 F15000\n")
         
-        #set acceleration
+        # set acceleration
         self.beeCon.sendCmd("M206 X400\n")
         
-        #go to first point
+        # go to first point
         self.beeCon.sendCmd("G1 X-50 Y0 Z110\n")
         
-        #set acceleration
+        # set acceleration
         self.beeCon.sendCmd("M206 X1000\n","3")
         
         return
@@ -551,7 +548,7 @@ class Cmd():
             Filament BeeCode
         """
         
-        #Get BeeCode
+        # Get BeeCode
         resp = self.beeCon.sendCmd("M400\n")
         
         splits = resp.split(" ")
@@ -560,7 +557,7 @@ class Cmd():
         
         for s in splits:
             cPos = s.find("bcode")
-            if(cPos >= 0):
+            if cPos >= 0:
                 code = s[cPos+6:]
         
         
@@ -582,7 +579,7 @@ class Cmd():
         
         commandStr = "M400 " + code + "\n"
         
-        #Set BeeCode
+        # Set BeeCode
         self.beeCon.sendCmd(commandStr)
         
         return
@@ -597,12 +594,12 @@ class Cmd():
         
         inits Sd card
         """
-        #Init SD
+        # Init SD
         self.beeCon.write("M21\n")
         
         tries = 10
         resp = ""
-        while((tries > 0) and ("ok" not in resp.lower())):
+        while (tries > 0) and ("ok" not in resp.lower()):
             try:
                 resp += self.beeCon.read()
                 tries -= 1
@@ -626,30 +623,30 @@ class Cmd():
         resp = ""
         self.beeCon.write("M20\n")
             
-        while("end file list" not in resp.lower()):
+        while "end file list" not in resp.lower():
             resp += self.beeCon.read()
         
         lines = resp.split('\n')
         
         for l in lines:
             
-            if("/" in l):
-                if("firmware.bck" in l.lower()):
+            if "/" in l:
+                if "firmware.bck" in l.lower():
                     pass
-                elif("firmware.bin" in l.lower()):
+                elif "firmware.bin" in l.lower():
                     pass
-                elif("config.txt" in l.lower()):
+                elif "config.txt" in l.lower():
                     pass
-                elif("config.bck" in l.lower()):
+                elif "config.bck" in l.lower():
                     pass
-                elif(l == ""):
+                elif l == "":
                     pass
                 else:
                     fName = l[1:len(l)-1]
                     fList['FileNames'].append(fName)
                     fList['FilePaths'].append('')
                     
-            elif("end file list" in l.lower()):
+            elif "end file list" in l.lower():
                 return fList
             
         return fList
@@ -667,11 +664,11 @@ class Cmd():
         arguments:
             fileName - file name
         """
-        #Init SD
+        # Init SD
         self.initSD()
         
         fn = fileName
-        if(len(fileName) > 8):
+        if len(fileName) > 8:
             fn = fileName[:8]
         
         cmdStr = "M30 " + fn + "\n"
@@ -679,12 +676,12 @@ class Cmd():
         resp = self.beeCon.sendCmd(cmdStr)
 
         tries = 10
-        while(tries > 0):
+        while tries > 0:
             
-            if("file created" in resp.lower()):
+            if "file created" in resp.lower():
                 print("   :"" SD file created")
                 break
-            elif("error" in resp.lower()):
+            elif "error" in resp.lower():
                 print("   : Error creating file")
                 return False
             else:
@@ -692,7 +689,7 @@ class Cmd():
                 #print(resp,"...")
             
             tries -= 1
-        if(tries <= 0):
+        if tries <= 0:
             return False
         
         return True
@@ -711,24 +708,24 @@ class Cmd():
             fileName - file name
         """
         
-        #Init SD
+        # Init SD
         self.initSD()
         
         cmdStr = "M23 " + fileName + "\n"
         
-        #Open File
+        # Open File
         resp = self.beeCon.sendCmd(cmdStr)
         
         tries = 10
-        while(tries > 0):
-            if("file opened" in resp.lower()):
+        while tries > 0:
+            if "file opened" in resp.lower():
                 print("   :"" SD file opened")
                 break
             else:
                 resp = self.beeCon.sendCmd("\n")
             tries -= 1
         
-        if(tries <= 0):
+        if tries <= 0:
             return False
         
         return True
@@ -749,18 +746,18 @@ class Cmd():
         """
         
         cmdStr = "M28 D" + str(fSize - 1) + " A" + str(a) + "\n"
-        #waitStr = "will write " + str(fSize) + " bytes ok"
+        # waitStr = "will write " + str(fSize) + " bytes ok"
         
         resp = self.beeCon.sendCmd(cmdStr)
         
         tries = 10
-        while((tries > 0) and ("ok" not in resp.lower())):
+        while (tries > 0) and ("ok" not in resp.lower()):
             resp += self.beeCon.sendCmd("dummy")
             tries -= 1
         
         #print("   :",resp)
         
-        if(tries <= 0):
+        if tries <= 0:
             return False
         
         return True
@@ -776,9 +773,9 @@ class Cmd():
         starts printing selected file
         """
         cmd = 'M33'
-        if(header):
+        if header:
             cmd += ' S1'
-            if(temp is not None):
+            if temp is not None:
                 cmd += ' T' + str(temp)
         
         cmd += '\n'
@@ -846,20 +843,20 @@ class Cmd():
         nMsg = math.ceil(len(block2write)/self.MESSAGE_SIZE)
         msgBuf = []
         for i in range(nMsg):
-            if(i < nMsg):
+            if i < nMsg:
                 msgBuf.append(block2write[i*self.MESSAGE_SIZE:(i+1)*self.MESSAGE_SIZE])
             else:
                 msgBuf.append(block2write[i*self.MESSAGE_SIZE:])
         
         resp = self.beeCon.read()
-        while("ok q:0" not in resp.lower()):
+        while "ok q:0" not in resp.lower():
             resp += self.beeCon.read()
         #print(resp)
         #resp = self.beeCon.read(10) #force clear buffer
         
         for m in msgBuf:
             mResp = self.sendBlockMsg(m)
-            if(mResp is not True):
+            if mResp is not True:
                 return mResp
         
         return True
@@ -886,7 +883,7 @@ class Cmd():
         #resp = self.beeCon.dispatch(msg)
         msgLen = len(msg)
         bWriten = self.beeCon.write(msg)
-        if(msgLen != bWriten):
+        if msgLen != bWriten:
             print("Bytes lost")
             return False
         
@@ -895,20 +892,20 @@ class Cmd():
         
         tries = 10
         resp = ""
-        while((tries > 0) and ("tog" not in resp)):
+        while (tries > 0) and ("tog" not in resp):
             try:
                 resp += self.beeCon.read()
                 tries -= 1
             except Exception:
                 tries = -1
         
-        if(tries > 0):
+        if tries > 0:
             return True
         else:
             cleaningTries = 5
             clean = False
             self.transmisstionErrors += 1
-            while(cleaningTries > 0 and clean == False):
+            while cleaningTries > 0 and clean == False:
                 clean = self.cleanBuffer()
                 time.sleep(0.5)
                 self.beeCon.close()
@@ -917,10 +914,10 @@ class Cmd():
                 
                 cleaningTries -= 1
             
-            if(cleaningTries <= 0):
+            if cleaningTries <= 0:
                 return None
             
-            if(clean == False):
+            if clean is False:
                 return None
             
             return False
@@ -946,7 +943,7 @@ class Cmd():
         acc_resp = ""
         #resp = ""
         
-        while("ok" not in acc_resp.lower() and tries > 0):
+        while "ok" not in acc_resp.lower() and tries > 0:
             print("Cleaning")
             try:
                 self.beeCon.write(cleanStr,25)
@@ -975,19 +972,19 @@ class Cmd():
         
         resp = ""
         
-        while('ok' not in resp):
+        while 'ok' not in resp:
             resp += self.beeCon.read()
         
         split = resp.split(' ')
         
         for s in split:
-            if('A' in s):
+            if 'A' in s:
                 printStatus['Estimated Time'] = int(s[1:])
-            elif('B' in s):
+            elif 'B' in s:
                 printStatus['Elapsed Time'] = int(s[1:])//(60*1000)
-            elif('C' in s):
+            elif 'C' in s:
                 printStatus['Lines'] = int(s[1:])
-            elif('D' in s):
+            elif 'D' in s:
                 printStatus['Executed Lines'] = int(s[1:])
         
         return printStatus
@@ -1010,66 +1007,66 @@ class Cmd():
     *************************************************************************"""
     def FlashFirmware(self, fileName):
         
-        if(os.path.isfile(fileName) == False):
-            print("   :","File does not exist")
+        if os.path.isfile(fileName) is False:
+            print("   :", "File does not exist")
             return
         
-        print("   :","Flashing new firmware File: ",fileName)
-        self.beeCon.sendCmd('M114 A0.0.0\n', 'ok')                  #Clear FW Version
+        print("   :", "Flashing new firmware File: ", fileName)
+        self.beeCon.sendCmd('M114 A0.0.0\n', 'ok')                  # Clear FW Version
         
-        fSize = os.path.getsize(fileName)                           #Get Firmware size in bytes
-        cTime = time.time()                                         #Get current time
+        fSize = os.path.getsize(fileName)                           # Get Firmware size in bytes
+        cTime = time.time()                                         # Get current time
         
-        message = "M650 A" + str(fSize) + "\n"                      #Prepare Start Transfer Command string
-        self.beeCon.write(message)                                  #Send Start Transfer Command
+        message = "M650 A" + str(fSize) + "\n"                      # Prepare Start Transfer Command string
+        self.beeCon.write(message)                                  # Send Start Transfer Command
         
-        #Before continue wait for the reply from the Start Command transfer
+        # Before continue wait for the reply from the Start Command transfer
         resp = ''
-        while('ok' not in resp):                                    #Once the printer is ready it replies 'ok'
+        while 'ok' not in resp:                                    # Once the printer is ready it replies 'ok'
             resp += self.beeCon.read()
-        
-        
+
         resp = ''
-        with open(fileName, 'rb') as f:                             #Open file to start transfer
+        with open(fileName, 'rb') as f:                             # Open file to start transfer
             
-            while True:                                             #while loop
-                buf = f.read(64)                                    #Read 64 bytes from file
+            while True:                                             # while loop
+                buf = f.read(64)                                    # Read 64 bytes from file
                 
-                if not buf: break                                   #if nothing left to read, transfer finished
+                if not buf:
+                    break                                   # if nothing left to read, transfer finished
                 
-                self.beeCon.write(buf)                              #Send 64 bytes to the printer
+                self.beeCon.write(buf)                              # Send 64 bytes to the printer
                 
-                time.sleep(0.0000001)                               #Small delay helps remove sporadic errors
+                time.sleep(0.0000001)                               # Small delay helps remove sporadic errors
                 
-                #The printer will forward the received data
-                #we then collect the received data and compare it to identify transfer errors
+                # The printer will forward the received data
+                # we then collect the received data and compare it to identify transfer errors
                 ret = []
-                while (len(ret) != len(buf)):                       #wait for the 64 bytes to be received
+                while len(ret) != len(buf):                        # wait for the 64 bytes to be received
                     try:
                         ret += self.beeCon.ep_in.read(len(buf), 1000)
                     except usb.core.USBError as e:
-                        if ("timed out" in str(e.args)):
+                        if "timed out" in str(e.args):
                             pass
             
-                bRet = bytes(ret)                                   #convert the received data to bytes
-                if(bRet not in buf):                                #Compare the data received with data sent
-                                                                    #If data received/sent are different cancel transfer and reset the printer manually 
+                bRet = bytes(ret)                                   # convert the received data to bytes
+                if bRet not in buf:                                 # Compare the data received with data sent
+                                                                    # If data received/sent are different cancel transfer and reset the printer manually
                     print('Firmware Flash error, please reset the printer')
                     return
 
-                sys.stdout.write('.')                               #print dot to console
-                sys.stdout.flush()                                  #used only to provide a simple indication as the process in running
+                sys.stdout.write('.')                               # print dot to console
+                sys.stdout.flush()                                  # used only to provide a simple indication as the process in running
 
         eTime = time.time()
         
         avgSpeed = os.path.getsize(fileName)//(eTime - cTime)
         
-        print ("\n   :","Flashing completed in", eTime-cTime, 's')
-        print("   :Average Transfer Speed",avgSpeed)
+        print ("\n   :", "Flashing completed in", eTime-cTime, 's')
+        print("   :Average Transfer Speed", avgSpeed)
         
         self.beeCon.sendCmd('M114 A20.0.0\n', 'ok')
         
-        self.newFw=self.GetFirmwareVersion()
+        self.newFw = self.GetFirmwareVersion()
         
         return
     
@@ -1086,6 +1083,3 @@ class Cmd():
         fw = split[0]
         
         return fw
-    
-        
-        return

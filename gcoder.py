@@ -29,6 +29,7 @@ import logging
 from array import array
 
 from printrun_utils import install_locale
+
 install_locale('pronterface')
 
 gcode_parsed_args = ["x", "y", "e", "f", "z", "i", "j"]
@@ -38,6 +39,7 @@ gcode_exp = re.compile("\([^\(\)]*\)|;.*|[/\*].*\n|([%s])([-+]?[0-9]*\.?[0-9]*)"
 m114_exp = re.compile("\([^\(\)]*\)|[/\*].*\n|([XYZ]):?([-+]?[0-9]*\.?[0-9]*)")
 specific_exp = "(?:\([^\(\)]*\))|(?:;.*)|(?:[/\*].*\n)|(%s[-+]?[0-9]*\.?[0-9]*)"
 move_gcodes = ["G0", "G1", "G2", "G3"]
+
 
 class PyLine(object):
 
@@ -60,29 +62,34 @@ try:
 except ImportError:
     Line = PyLine
 
+
 def find_specific_code(line, code):
     exp = specific_exp % code
     bits = [bit for bit in re.findall(exp, line.raw) if bit]
     if not bits: return None
     else: return float(bits[0][1:])
 
+
 def S(line):
     return find_specific_code(line, "S")
 
+
 def P(line):
     return find_specific_code(line, "P")
+
 
 def split(line):
     split_raw = gcode_exp.findall(line.raw.lower())
     if not split_raw:
         line.command = line.raw
         line.is_move = False
-        logging.warning(_("raw G-Code line \"%s\" could not be parsed") % line.raw)
+        logging.warning("raw G-Code line \"%s\" could not be parsed" % line.raw)
         return [line.raw]
     command = split_raw[0] if split_raw[0][0] != "n" else split_raw[1]
     line.command = command[0].upper() + command[1]
     line.is_move = line.command in move_gcodes
     return split_raw
+
 
 def parse_coordinates(line, split_raw, imperial = False, force = False):
     # Not a G-line, we don't want to parse its arguments
@@ -94,6 +101,7 @@ def parse_coordinates(line, split_raw, imperial = False, force = False):
         if code not in gcode_parsed_nonargs and bit[1]:
             setattr(line, code, unit_factor * float(bit[1]))
 
+
 class Layer(list):
 
     __slots__ = ("duration", "z")
@@ -101,6 +109,7 @@ class Layer(list):
     def __init__(self, lines, z = None):
         super(Layer, self).__init__(lines)
         self.z = z
+
 
 class GCode(object):
 
@@ -492,7 +501,7 @@ class GCode(object):
         totalduration = 0.0
         acceleration = 2000.0  # mm/s^2
         layerbeginduration = 0.0
-        #TODO:
+        # TODO:
         # get device caps from firmware: max speed, acceleration/axis
         # (including extruder)
         # calculate the maximum move duration accounting for above ;)
@@ -580,6 +589,7 @@ class GCode(object):
         
         #return "%d layers, %s" % (len(self.layers), str(totaltime))
         return estimator
+
 
 def main():
     if len(sys.argv) < 2:

@@ -44,15 +44,17 @@ Operation Commands:
 __author__ = "BVC Electronic Systems"
 __license__ = ""
 
-import Console
 import os
 import sys
 import time
+
+import Console
 
 done = False
 
 newestFirmwareVersion = 'MSFT-BEETHEFIRST-10.1.0'
 fwFile = 'MSFT-BEETHEFIRST-Firmware-10.1.0.BIN'
+
 
 def restart_program():
     python = sys.executable
@@ -65,8 +67,8 @@ if __name__ == "__main__":
     
     console = Console.Console()
     
-    if(console.exit):
-        if(console.exitState == "restart"):
+    if console.exit:
+        if console.exitState == "restart":
             try:
                 console.beeCon.close()
             except:
@@ -74,57 +76,60 @@ if __name__ == "__main__":
             console = None
             restart_program()
     
-    while(done == False):
+    while done is False:
         var = input(">:")
-        #print(var)
+        # print(var)
         
-        if("-exit" in var.lower()):
+        if "-exit" in var.lower():
             console.close()
             console = None
             done = True
             
-        elif("mode" in var.lower()):
-            print("   :",console.mode)
+        elif "mode" in var.lower():
+            print("   :", console.mode)
             
-        elif("-gcode" in var.lower() and console.mode == "firmware"):
-            print("   :","Starting gcode transfer:")
-            if("-gcode -c" in var.lower() and console.mode == "firmware"):
+        elif "-gcode" in var.lower() and console.mode == "firmware":
+            print("   :", "Starting gcode transfer:")
+            if "-gcode -c" in var.lower() and console.mode == "firmware":
                 print("   :","Editing gCode :")
                 console.transferGCodeWithColor(var)
             else:
                 console.transferGCode(var)
                 
-        elif("-load" in var.lower()):
-            print("   :","Loading filament")
+        elif "-load" in var.lower():
+            print("   :", "Loading filament")
             console.load()
             
-        elif("-unload" in var.lower()):
-            print("   :","Unloading filament")
+        elif "-unload" in var.lower():
+            print("   :", "Unloading filament")
             console.unload()
-        elif("-estimate" in var.lower()):
-            print("   :","Estimating time")
+
+        elif "-estimate" in var.lower():
+            print("   :", "Estimating time")
             console.estimateTime(var)
-        elif("-flash" in var.lower()):
-            print("   :","Flashing Firmware")
+
+        elif "-flash" in var.lower():
+            print("   :", "Flashing Firmware")
             console.FlashFirmware(var)
-        elif("-verify" in var.lower()):
+
+        elif "-verify" in var.lower():
             print("   :Newest Printer Firmware Available:",newestFirmwareVersion)
-            currentVersionResp = console.sendCmd('M115',printReply=False)       #Ask Printer Firmware Version
-            if(newestFirmwareVersion in currentVersionResp):
+            currentVersionResp = console.sendCmd('M115',printReply=False)       # Ask Printer Firmware Version
+            if newestFirmwareVersion in currentVersionResp:
                 print("   :Printer is already running the latest firmware")
             else:
-                printerModeResp = console.sendCmd('M116',printReply=False)      #Ask Printer Bootloader Version
-                if('Bad M-code' in printerModeResp):                            #Firmware Does not reply to M116 command, Bad M-Code Error
+                printerModeResp = console.sendCmd('M116',printReply=False)      # Ask Printer Bootloader Version
+                if 'Bad M-code' in printerModeResp:                             # Firmware Does not reply to M116 command, Bad M-Code Error
                     print("   :Printer in Firmware, restarting your Printer to Bootloader")
-                    console.sendCmd('M609',printReply=False)                    #Send Restart Command to Firmware
-                    time.sleep(2)                                               #Small delay to make sure the board resets and establishes connection
-                    #After Reset we must close existing connections and reconnect to the new device
-                    while(True):
+                    console.sendCmd('M609', printReply=False)                    # Send Restart Command to Firmware
+                    time.sleep(2)                                               # Small delay to make sure the board resets and establishes connection
+                    # After Reset we must close existing connections and reconnect to the new device
+                    while True:
                         try:
-                            console.beeCon.close()      #close old connection
+                            console.beeCon.close()          # close old connection
                             console = None
-                            console = Console.Console() #search for printer and connect to the first
-                            if(console.connected == True):  #if connection is established proceed
+                            console = Console.Console()     # search for printer and connect to the first
+                            if console.connected is True:   # if connection is established proceed
                                 break                       
                         except:
                             pass
@@ -132,14 +137,16 @@ if __name__ == "__main__":
                 else:
                     print("   :Printer is in Bootloader")
                     
-                console.beeCmd.FlashFirmware(fwFile)                        #Flash New Firmware
-                newFwCmd = 'M114 A' + newestFirmwareVersion                 #preprare command string to set Firmware String
-                console.sendCmd(newFwCmd, printReply=False)                 #Record New FW String in Bootloader
-            #console.FlashFirmware(var)
+                console.beeCmd.FlashFirmware(fwFile)                        # Flash New Firmware
+                newFwCmd = 'M114 A' + newestFirmwareVersion                 # preprare command string to set Firmware String
+                console.sendCmd(newFwCmd, printReply=False)                 # Record New FW String in Bootloader
+            # console.FlashFirmware(var)
         else:
-            if(("m630" in var.lower() and console.mode == "bootloader") or ("m609" in var.lower() and console.mode == "firmware")):
-                print("Changing to firmware/bootloader")
-                #console.goToFirmware()
+            if ("m630" in var.lower() and console.mode == "bootloader") \
+                    or ("m609" in var.lower() and console.mode == "firmware"):
+
+                print "Changing to firmware/bootloader"
+                # onsole.goToFirmware()
                 console.sendCmd(var)
                 try:
                     console.beeCon.close()
