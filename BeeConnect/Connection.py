@@ -126,7 +126,7 @@ class Con:
                 raise ValueError('Device not found')
 
         if self.dev is None:
-            print "Can't Find Printer"
+            print("Can't Find Printer")
             return
             
         # set the active configuration. With no arguments, the first
@@ -138,7 +138,7 @@ class Con:
             #self.dev.set_configuration()
             self.cfg = self.dev.get_active_configuration()
             self.intf = self.cfg[(0,0)]
-            print "reconnect"
+            print("reconnect")
         except usb.core.USBError as e:
             sys.exit("Could not set configuration: %s" % str(e))
         

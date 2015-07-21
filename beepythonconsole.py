@@ -145,7 +145,7 @@ if __name__ == "__main__":
             if ("m630" in var.lower() and console.mode == "bootloader") \
                     or ("m609" in var.lower() and console.mode == "firmware"):
 
-                print "Changing to firmware/bootloader"
+                print("Changing to firmware/bootloader")
                 # onsole.goToFirmware()
                 console.sendCmd(var)
                 try:

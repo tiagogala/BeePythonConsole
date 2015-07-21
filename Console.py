@@ -72,7 +72,7 @@ class Console:
                         self.mode = "bootloader"
                         self.connected = True
                     elif 'ok Q' in resp:
-                        print "Printer running in firmware mode"
+                        print("Printer running in firmware mode")
                         self.mode = "firmware"
                         self.connected = True
                     else:
@@ -83,7 +83,7 @@ class Console:
                         resp = self.beeCmd.cleanBuffer()
                         
                         if resp == 0:
-                            print "error connecting to printer... restarting application"
+                            print("error connecting to printer... restarting application")
                             self.beeCon.close()
                             self.beeCon = None
                             self.exit = True
@@ -129,7 +129,7 @@ class Console:
             if t > nextPullTime:
                 
                 self.beeCon = BeeConnect.Connection.Con()
-                if self.beeCon.isConnected() == True:
+                if self.beeCon.isConnected() is True:
                     self.beeCmd = BeeConnect.Command.Cmd(self.beeCon)
                     
                     resp = self.beeCmd.startPrinter()
@@ -142,7 +142,7 @@ class Console:
                         self.beeCon = None
                     
                 nextPullTime = time.time() + 0.1
-                print "Wait for connection"
+                print("Wait for connection")
         
         return
 
@@ -155,7 +155,7 @@ class Console:
         
         self.beeCon.close()
         
-        print "Closing"
+        print("Closing")
         
         return
 
@@ -287,7 +287,7 @@ class Console:
         
         # check if file exists
         if os.path.isfile(localFN) == False:
-            print "   :","File does not exist"
+            print("   :","File does not exist")
             return
         
         # REMOVE SPECIAL CHARS
@@ -339,7 +339,7 @@ class Console:
         fields = cmd.split(" ")
         
         if len(fields) < 2:
-            print "   :","Insuficient fields"
+            print("   :", "Insuficient fields")
             return
         elif len(fields) == 2:
             localFN = fields[1]
@@ -364,14 +364,14 @@ class Console:
     def transferGFile(self, localFN, sdFN):
         
         # Load File
-        print "   :","Loading File"
+        print("   :", "Loading File")
         f = open(localFN, 'rb')
         fSize = os.path.getsize(localFN)
-        print "   :","File Size: ", fSize, "bytes"
+        print("   :", "File Size: ", fSize, "bytes")
         
         blockBytes = self.beeCmd.MESSAGE_SIZE * self.beeCmd.BLOCK_SIZE
         nBlocks = math.ceil(fSize/blockBytes)
-        print "   :","Number of Blocks: ", nBlocks
+        print("   :", "Number of Blocks: ", nBlocks)
         
         # TODO RUN ESTIMATOR
         
@@ -405,12 +405,12 @@ class Console:
                 while blockTransfered == False:
                     blockTransfered = self.beeCmd.sendBlock(startPos,f)
                     if blockTransfered is None:
-                        print "Transfer aborted"
+                        print("Transfer aborted")
                         return False
                 
                 totalBytes += bytes2write 
                 blocksTransfered += 1
-                print "   :","Transfered ", str(blocksTransfered), "/", str(nBlocks), " blocks ", totalBytes, "/", fSize, " bytes"
+                print("   :","Transferred ", str(blocksTransfered), "/", str(nBlocks), " blocks ", totalBytes, "/", fSize, " bytes")
                 
         print("   :","Transfer completed",". Errors Resolved: ", self.beeCmd.transmisstionErrors)
         
