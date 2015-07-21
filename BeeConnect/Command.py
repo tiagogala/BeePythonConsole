@@ -123,7 +123,7 @@ class Cmd():
         
         resp = self.beeCon.sendCmd("M625\n")
         
-        if 'Bad M-code 625' in resp:   #printer in bootloader mode
+        if 'Bad M-code 625' in resp:   # printer in bootloader mode
             print("Printer running in Bootloader Mode")
             #print("Changing to firmware")
             #self.beeCon.write("M630\n")
@@ -152,7 +152,7 @@ class Cmd():
         status = ''
         done = False
         
-        while(not done):
+        while not done:
             
             while 's:' not in resp.lower():
                 resp += self.beeCon.sendCmd("M625\n")
@@ -205,7 +205,7 @@ class Cmd():
         homes all axis
         """
         
-        self.beeCon.sendCmd("G28\n","3")
+        self.beeCon.sendCmd("G28\n", "3")
         
         return
     
@@ -220,7 +220,7 @@ class Cmd():
         home axis X and Y
         """
         
-        self.beeCon.sendCmd("G28 X0 Y0\n","3")
+        self.beeCon.sendCmd("G28 X0 Y0\n", "3")
         
         return
     
@@ -235,7 +235,7 @@ class Cmd():
         homes Z axis
         """
         
-        self.beeCon.sendCmd("G28 Z0\n","3")
+        self.beeCon.sendCmd("G28 Z0\n", "3")
         
         return
     
@@ -293,8 +293,7 @@ class Cmd():
             commandStr = "G1 X" + str(newX) + " Y" + str(newY) + " Z" + str(newZ) + " E" + str(newE) + "F" + str(newF) + "\n"
         else:
             commandStr = "G1 X" + str(newX) + " Y" + str(newY) + " Z" + str(newZ) + " E" + str(newE) + "\n"
-        
-        
+
         if wait is not None:
             self.beeCon.sendCmd(commandStr)
         else:
@@ -352,10 +351,10 @@ class Cmd():
         
         
         # go to SECOND point
-        self.move(0,0,10,0)
+        self.move(0, 0, 10, 0)
         # self.beeCon.sendCmd("G1 X-31 Y-65\n","3")
         self.beeCon.sendCmd("G1 X-31 Y-65\n")
-        self.move(0,0,-10,0)
+        self.move(0, 0, -10, 0)
         
         return
     
@@ -375,12 +374,12 @@ class Cmd():
         # set acceleration
         self.beeCon.sendCmd("M206 X400\n")
         
-        self.move(0,0,10,0)
+        self.move(0, 0, 10, 0)
         # go to SECOND point
         # self.beeCon.sendCmd("G1 X35 Y-65\n","3")
         self.beeCon.sendCmd("G1 X35 Y-65\n")
         
-        self.move(0,0,-10,0)
+        self.move(0, 0, -10, 0)
         
         return
     
@@ -398,7 +397,7 @@ class Cmd():
             nozzle temperature
         """
         
-        #get Temperature
+        # get Temperature
         resp = self.beeCon.sendCmd("M105\n")
         #print(resp)
         
@@ -559,8 +558,7 @@ class Cmd():
             cPos = s.find("bcode")
             if cPos >= 0:
                 code = s[cPos+6:]
-        
-        
+
         return code
 
     """*************************************************************************
@@ -865,7 +863,7 @@ class Cmd():
                             sendBlockMsg Method 
 
     *************************************************************************"""
-    def sendBlockMsg(self,msg):
+    def sendBlockMsg(self, msg):
         r"""
         sendBlockMsg method
         
@@ -1076,7 +1074,7 @@ class Cmd():
     *************************************************************************"""
     def GetFirmwareVersion(self):
         
-        resp = self.beeCon.sendCmd('M115\n','ok')
+        resp = self.beeCon.sendCmd('M115\n', 'ok')
         resp = resp.replace(' ', '')
         
         split = resp.split('ok') 

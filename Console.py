@@ -64,10 +64,10 @@ class Console:
                 print("Wait for connection")
                 
                 self.beeCon = BeeConnect.Connection.Con()
-                if self.beeCon.isConnected() == True:
+                if self.beeCon.isConnected() is True:
                     self.beeCmd = BeeConnect.Command.Cmd(self.beeCon)
                     resp = self.beeCon.sendCmd("M625\n")
-                    if 'Bad M-code 625' in resp:   #printer in bootloader mode
+                    if 'Bad M-code 625' in resp:   # printer in bootloader mode
                         print("Printer running in Bootloader Mode")
                         self.mode = "bootloader"
                         self.connected = True
@@ -174,13 +174,13 @@ class Console:
         
         resp = self.beeCon.sendCmd(cmdStr, wait)
         
-        if printReply == False:
+        if printReply is False:
             return resp
         
         splits = resp.rstrip().split("\n")
         
         for r in splits:
-            print("   :",r)
+            print("   :", r)
             
         return resp
     
@@ -219,7 +219,7 @@ class Console:
         fields = cmd.split(" ")
         
         if len(fields) < 4:
-            print("   :","Insuficient fields")
+            print("   :", "Insufficient fields")
             return
         elif len(fields) == 4:
             localFN = fields[2]
@@ -230,8 +230,8 @@ class Console:
             sdFN = fields[3]
             color = fields[4]
         
-        if os.path.isfile(localFN) == False:
-            print("   :","File does not exist")
+        if os.path.isfile(localFN) is False:
+            print("   :", "File does not exist")
             return
         
         colorCode = "W1"
@@ -239,7 +239,7 @@ class Console:
             colorCode = "W1"
         
         header = "M300\nG28\nM206 X500\nM107\nM104 S220\nG92 E\nM642 "
-        header += str(colorCode) +"\nM130 T6 U1.3 V80\nG1 X-98.0 Y-20.0 Z5.0 F3000\n"
+        header += str(colorCode) + "\nM130 T6 U1.3 V80\nG1 X-98.0 Y-20.0 Z5.0 F3000\n"
         header += "G1 Y-68.0 Z0.3\nG1 X-98.0 Y0.0 F500 E20\nG92 E\n"
         
         footer = "M300\nM104 S0\nG28 X\nG28 Z\nG1 Y65\nG92 E\n"
@@ -275,7 +275,7 @@ class Console:
         fields = cmd.split(" ")
         
         if len(fields) < 2:
-            print("   :","Insuficient fields")
+            print("   :", "Insufficient fields")
             return
         elif len(fields) == 2:
             localFN = fields[1]
@@ -286,8 +286,8 @@ class Console:
                 estimate = True
         
         # check if file exists
-        if os.path.isfile(localFN) == False:
-            print("   :","File does not exist")
+        if os.path.isfile(localFN) is False:
+            print("   :", "File does not exist")
             return
         
         # REMOVE SPECIAL CHARS
@@ -306,20 +306,19 @@ class Console:
         
         # ADD ESTIMATOR HEADER
         if platform.system() != 'Windows' and estimate:
-            gc = gcoder.GCode(open(localFN,'rU'))
+            gc = gcoder.GCode(open(localFN, 'rU'))
             
             est = gc.estimate_duration()
-            eCmd = 'M300\n'                 #Beep
-            eCmd += 'M31 A' + str(est['seconds']//60) + ' L' + str(est['lines']) + '\n' #Estimator command
-            eCmd += 'M32 A0\n'      #Clear time counter
+            eCmd = 'M300\n'                 # Beep
+            eCmd += 'M31 A' + str(est['seconds']//60) + ' L' + str(est['lines']) + '\n' # Estimator command
+            eCmd += 'M32 A0\n'      # Clear time counter
             
             newFile = open('gFile.gcode','w')
             newFile.write(eCmd)
             newFile.close()
             
             os.system("cat '" + localFN + "' >> " + "gFile.gcode")
-            
-            
+
             self.transferGFile('gFile.gcode', sdFN)
         else:
             self.transferGFile(localFN, sdFN)
@@ -339,7 +338,7 @@ class Console:
         fields = cmd.split(" ")
         
         if len(fields) < 2:
-            print("   :", "Insuficient fields")
+            print("   :", "Insufficient fields")
             return
         elif len(fields) == 2:
             localFN = fields[1]
@@ -349,7 +348,7 @@ class Console:
         estimator = gcoder.GCode(open(localFN, "rU"))
         est = estimator.estimate_duration()
         nLines = est['lines']
-        min = est ['seconds']//60
+        min = est['seconds']//60
         
         print("   :", 'Number of GCode Lines: ', nLines)
         print("   :", 'Estimated Time: ', min, 'min')
@@ -398,7 +397,7 @@ class Console:
                 
                 bytes2write = endPos - startPos
                 
-                if blocksTransfered == nBlocks -1:
+                if blocksTransfered == (nBlocks-1):
                     endPos = fSize
                     
                 blockTransfered = False
@@ -410,9 +409,9 @@ class Console:
                 
                 totalBytes += bytes2write 
                 blocksTransfered += 1
-                print("   :","Transferred ", str(blocksTransfered), "/", str(nBlocks), " blocks ", totalBytes, "/", fSize, " bytes")
+                print("   :", "Transferred ", str(blocksTransfered), "/", str(nBlocks), " blocks ", totalBytes, "/", fSize, " bytes")
                 
-        print("   :","Transfer completed",". Errors Resolved: ", self.beeCmd.transmisstionErrors)
+        print("   :", "Transfer completed", ". Errors Resolved: ", self.beeCmd.transmisstionErrors)
         
         elapsedTime = time.time()- startTime
         avgSpeed = fSize//elapsedTime
