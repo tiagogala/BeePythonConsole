@@ -70,7 +70,7 @@ class Con:
         
         Initializes this class
         
-        receives as argument the BeeConnection object ans veriffies the 
+        receives as argument the BeeConnection object ans verifies the
         connection status
         
         """
@@ -172,7 +172,7 @@ class Con:
                             write Method
 
     *************************************************************************"""
-    def write(self,message,timeout=500):
+    def write(self, message, timeout=500):
         r"""
         write method
         

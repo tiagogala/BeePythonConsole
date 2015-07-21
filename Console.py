@@ -322,8 +322,7 @@ class Console:
             self.transferGFile('gFile.gcode', sdFN)
         else:
             self.transferGFile(localFN, sdFN)
-        
-        
+
         return
     
     """*************************************************************************
@@ -413,9 +412,9 @@ class Console:
                 
         print("   :", "Transfer completed", ". Errors Resolved: ", self.beeCmd.transmisstionErrors)
         
-        elapsedTime = time.time()- startTime
+        elapsedTime = time.time() - startTime
         avgSpeed = fSize//elapsedTime
-        print("Elapsed time: ",elapsedTime)
+        print("Elapsed time: ", elapsedTime)
         print("Average Transfer Speed: ", avgSpeed)
         
         return

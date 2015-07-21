@@ -113,12 +113,12 @@ if __name__ == "__main__":
             console.FlashFirmware(var)
 
         elif "-verify" in var.lower():
-            print("   :Newest Printer Firmware Available:",newestFirmwareVersion)
-            currentVersionResp = console.sendCmd('M115',printReply=False)       # Ask Printer Firmware Version
+            print("   :Newest Printer Firmware Available:", newestFirmwareVersion)
+            currentVersionResp = console.sendCmd('M115', printReply=False)       # Ask Printer Firmware Version
             if newestFirmwareVersion in currentVersionResp:
                 print("   :Printer is already running the latest firmware")
             else:
-                printerModeResp = console.sendCmd('M116',printReply=False)      # Ask Printer Bootloader Version
+                printerModeResp = console.sendCmd('M116', printReply=False)      # Ask Printer Bootloader Version
                 if 'Bad M-code' in printerModeResp:                             # Firmware Does not reply to M116 command, Bad M-Code Error
                     print("   :Printer in Firmware, restarting your Printer to Bootloader")
                     console.sendCmd('M609', printReply=False)                    # Send Restart Command to Firmware
