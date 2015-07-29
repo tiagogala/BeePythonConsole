@@ -64,7 +64,8 @@ if __name__ == "__main__":
     done = False
     
     console = Console.Console()
-    
+    command_list = []
+	
     if(console.exit):
         if(console.exitState == "restart"):
             try:
@@ -74,10 +75,31 @@ if __name__ == "__main__":
             console = None
             restart_program()
     
+	#process args
+    if len(sys.argv)==2:
+        if len(sys.argv) == 2 and os.path.isfile(sys.argv[1]):
+            print("Read and process file into command_list")
+            with open(sys.argv[1]) as f:
+                command_list=f.readlines()
     while(done == False):
-        var = input(">:")
-        #print(var)
+        if len(sys.argv) >= 2 and os.path.isfile(sys.argv[1])==False:
+            sys.argv.pop(0) #clear first record (program name)
+            var = " ".join(sys.argv)
+            done = True
+
+        if len(command_list) >= 1:
+            var = command_list.pop(0)
+            print(var)
+            if len(command_list) == 1:
+                done=True
+        else:
+			var = input(">:")
+			#print(var)
         
+        if("m640" in var.lower()):      # PAUSA VIRTUAL!!!!
+            args=var.split(" ")
+            time.sleep(float(args[1])/1000)         # sleep for n milliseconds
+            var = "m300 s0 p0"          # send something to the console
         if("-exit" in var.lower()):
             console.close()
             console = None
