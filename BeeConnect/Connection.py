@@ -37,9 +37,9 @@ __license__ = ""
 import usb
 import usb.core
 import usb.util
-#import usb.backend.libusb1 as libusb1
-#import usb.backend.libusb0 as libusb0
-#import usb.backend.openusb as openusb
+import usb.backend.libusb1 as libusb1
+import usb.backend.libusb0 as libusb0
+import usb.backend.openusb as openusb
 import sys
 import os
 import time
@@ -87,66 +87,59 @@ class Con():
     *************************************************************************"""
     def findBEE(self):
         r"""
-        findBE-E method
+         findBE-E method
         
         searches for connected printers and tries to connect to the first one.
         """
         
         self.connected = False
-        
-        # find our device
-        #self.dev = usb.core.find(idVendor=0xffff, idProduct=0x014e,backend=libusb1.get_backend())
-        #self.dev = usb.core.find(idVendor=0xffff, idProduct=0x014e,backend=libusb0.get_backend())
-        #self.dev = usb.core.find(idVendor=0xffff, idProduct=0x014e,backend=openusb.get_backend())
-        self.dev = usb.core.find(idVendor=0xffff, idProduct=0x014e)
-        
-        if(self.dev is not None):
-            print("BTF Old Connected")
-        
-        # was it found? no, try the other device
-        if self.dev is None:
-            #self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0001,backend=libusb1.get_backend())
-            self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0001)
-            if(self.dev is not None):
-                print("BEETHEFIRST Printer Connected")
-        if self.dev is None:
-            #self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0002,backend=libusb1.get_backend())
-            self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0002)
-            if(self.dev is not None):
-                print("BEETHEFIRST+ Printer Connected")
-        if self.dev is None:
-            #self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0003,backend=libusb1.get_backend())
-            self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0003)
-            if(self.dev is not None):
-                print("BEEME Printer Connected")
-        if self.dev is None:
-            #self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0004,backend=libusb1.get_backend())
-            self.dev = usb.core.find(idVendor=0x29c9, idProduct=0x0004)
-            if(self.dev is not None):
-                print("BEEINSCHOOL Printer Connected")
-        elif self.dev is None:
-                raise ValueError('Device not found')
+  
+        # find all devices that match BEEVC USB descriptors
+        devices = []           
+        devices.append(usb.core.find(idVendor=0xffff, idProduct=0x014e,backend=libusb1.get_backend()))
+        devices.append(usb.core.find(idVendor=0x29c9, idProduct=0x0001,backend=libusb1.get_backend()))
+        devices.append(usb.core.find(idVendor=0x29c9, idProduct=0x0002,backend=libusb1.get_backend()))
+        devices.append(usb.core.find(idVendor=0x29c9, idProduct=0x0003,backend=libusb1.get_backend()))
+        devices.append(usb.core.find(idVendor=0x29c9, idProduct=0x0004,backend=libusb1.get_backend()))
 
-        if self.dev is None:
-                print("Can't Find Printer")
-                return
-            
-        # set the active configuration. With no arguments, the first
-        # configuration will be the active one
-        try:
-            self.dev.set_configuration()
-            self.dev.reset()
-            time.sleep(0.5)
-            #self.dev.set_configuration()
-            self.cfg = self.dev.get_active_configuration()
-            self.intf = self.cfg[(0,0)]
-            print("reconnect")
-        except usb.core.USBError as e:
-            sys.exit("Could not set configuration: %s" % str(e))
+        # filter valid products
+        dev_list=[]
+        for dev in devices:
+            #print(dev)
+            if dev!=None:
+                dev_list.append(dev)
+
+        #print("LIST OF DEVICES FOUND:", dev_list) 
+
         
+        # try to connect to each of the devices found 
+        for dev in dev_list:
+            connected = False
+            self.dev = dev
+
+            # set the active configuration. With no arguments, the first
+            # configuration will be the active one
+            try:
+                self.dev.set_configuration()
+                self.dev.reset()
+                time.sleep(0.5)
+                #self.dev.set_configuration()
+                self.cfg = self.dev.get_active_configuration()
+                self.intf = self.cfg[(0,0)]
+                print("reconnect")
+                connected=True              #if it reached this point witout throwing an exception, we are connected to an available device
+                break                       #out of for loop   
+            except usb.core.USBError as e: 
+                #print("Could not set configuration: %s" % str(e))
+                connected=False # if it throws an expception we are not connected
+                #time.sleep(1)  #if iterating a big list it is a good idea to let it sleep for a while
+
+
         #self.endpoint = self.dev[0][(0,0)][0]
-
-        self.ep_out = usb.util.find_descriptor(
+        if connected==False:
+            sys.exit("ERROR: Unable to connect to a valid device.")
+        else:   #we are connected
+            self.ep_out = usb.util.find_descriptor(
                 self.intf,
                 # match the first OUT endpoint
                 custom_match = \
@@ -154,7 +147,7 @@ class Con():
                 usb.util.endpoint_direction(e.bEndpointAddress) == \
                 usb.util.ENDPOINT_OUT)
 
-        self.ep_in = usb.util.find_descriptor(
+            self.ep_in = usb.util.find_descriptor(
                 self.intf,
                 # match the first in endpoint
                 custom_match = \
@@ -162,12 +155,12 @@ class Con():
                 usb.util.endpoint_direction(e.bEndpointAddress) == \
                 usb.util.ENDPOINT_IN)
 
-        # Verify that the end points exist
+      # Verify that the end points exist
         assert self.ep_out is not None
         assert self.ep_in is not None
-        
+      
         self.connected = True
-        
+      
         return
     
     """*************************************************************************
