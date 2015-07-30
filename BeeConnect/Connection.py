@@ -120,7 +120,7 @@ class Con():
         #print("DEVICES:", devices)
 
         # try to connect to each of the devices found 
-        for dev in dev_list:
+        for dev in devices:
             connected = False
             self.dev = dev
 
