@@ -87,10 +87,10 @@ if __name__ == "__main__":
             var = " ".join(sys.argv)
             done = True
 
-        if len(command_list) >= 1:                                    # end processing gcode list from file 
+        if len(command_list) >= 1:            # end processing gcode list from file 
             var = command_list.pop(0)
             print(var)
-            if len(command_list) == 1:
+            if len(command_list) == 0:
                 done=True
         else:
             var = input(">:")
