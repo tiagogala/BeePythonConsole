@@ -96,22 +96,29 @@ class Con():
   
         # find all devices that match BEEVC USB descriptors
         devices = []           
-        devices.append(usb.core.find(idVendor=0xffff, idProduct=0x014e,backend=libusb1.get_backend()))
-        devices.append(usb.core.find(idVendor=0x29c9, idProduct=0x0001,backend=libusb1.get_backend()))
-        devices.append(usb.core.find(idVendor=0x29c9, idProduct=0x0002,backend=libusb1.get_backend()))
-        devices.append(usb.core.find(idVendor=0x29c9, idProduct=0x0003,backend=libusb1.get_backend()))
-        devices.append(usb.core.find(idVendor=0x29c9, idProduct=0x0004,backend=libusb1.get_backend()))
 
-        # filter valid products
-        dev_list=[]
-        for dev in devices:
-            #print(dev)
-            if dev!=None:
-                dev_list.append(dev)
+        d=usb.core.find(find_all=True, idVendor=0xffff, idProduct=0x014e, backend=libusb1.get_backend())
+        if d!=None: 
+            for a in d: devices.append(a)
 
-        #print("LIST OF DEVICES FOUND:", dev_list) 
-
+        d=usb.core.find(find_all=True, idVendor=0x29c9, idProduct=0x0001, backend=libusb1.get_backend())
+        if d!=None: 
+            for a in d: devices.append(a)
         
+        d=usb.core.find(find_all=True, idVendor=0x29c9, idProduct=0x0002, backend=libusb1.get_backend())
+        if d!=None: 
+            for a in d: devices.append(a)
+
+        d=usb.core.find(find_all=True, idVendor=0x29c9, idProduct=0x0003, backend=libusb1.get_backend())
+        if d!=None: 
+            for a in d: devices.append(a)
+
+        d=usb.core.find(find_all=True, idVendor=0x29c9, idProduct=0x0004, backend=libusb1.get_backend())
+        if d!=None: 
+            for a in d: devices.append(a)
+        
+        #print("DEVICES:", devices)
+
         # try to connect to each of the devices found 
         for dev in dev_list:
             connected = False
@@ -139,6 +146,7 @@ class Con():
         if connected==False:
             sys.exit("ERROR: Unable to connect to a valid device.")
         else:   #we are connected
+            print("Connected to", self.dev.manufacturer, self.dev.product, "(SN:"+self.dev.serial_number+")")
             self.ep_out = usb.util.find_descriptor(
                 self.intf,
                 # match the first OUT endpoint
